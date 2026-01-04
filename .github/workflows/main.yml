@@ -1,4 +1,4 @@
-name: Build Stable Version
+name: Build Compatible APK
 
 on:
   push:
@@ -14,6 +14,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 1. Linux Parçaları (Hata almamak için şart)
       - name: Install Linux Dependencies
         run: |
           sudo apt-get update
@@ -30,18 +31,21 @@ jobs:
         with:
           python-version: '3.11'
 
-      # BURASI ÖNEMLİ: requirements.txt içindeki sürümü yükleyecek
+      # 2. Flet 0.22.1 Yüklemesi
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install cookiecutter packaging
 
+      # 3. FLUTTER 3.19.0 (İŞTE ÇÖZÜM BURASI!)
+      # Flet 0.22.1 sadece bu eski Flutter sürümleriyle çalışır.
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          flutter-version: '3.19.0'
 
+      # 4. APK Derleme
       - name: Build APK
         run: |
           yes | flet build apk --verbose
@@ -49,5 +53,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: KPSS-STABLE-APK
+          name: KPSS-UYUMLU-APK
           path: build/apk/app-release.apk
